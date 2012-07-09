@@ -143,6 +143,24 @@ class ASolrSearchable extends CActiveRecordBehavior {
 		$attributeName = $attributes[$attributeName];
 		return str_replace(".","__",$attributeName);
 	}
+	
+	/**
+	 * Resolves the attribute value.
+	 * @param $object
+	 * @param $property
+	 * @return mixed 
+	 */
+	protected function resolveAttributeValue($object, $property) {		
+		if (is_array($object)) {
+			$attributeValue = array();
+			foreach ($object as $item) {
+				$attributeValue[] = $item->{$property};
+			}
+		} else {
+			$attributeValue = isset($object) ? $object->{$property} : null;
+		}		
+		return $attributeValue;		
+	}
 
 	/**
 	 * Sets the solr document associated with this model instance
@@ -168,7 +186,7 @@ class ASolrSearchable extends CActiveRecordBehavior {
 			foreach($this->resolveAttributes() as $attribute => $item) {
 				list($object, $property) = $item;
 				$resolvedAttributeName = $this->resolveAttributeName($attribute);
-				$this->_solrDocument->{$resolvedAttributeName} = isset($object) ? $object->{$property} : null;
+				$this->_solrDocument->{$resolvedAttributeName} = $this->resolveAttributeValue($object, $property);
 			}
 		}
 		return $this->_solrDocument;
@@ -186,7 +204,7 @@ class ASolrSearchable extends CActiveRecordBehavior {
 		$this->_oldAttributes = array();
 		foreach($this->resolveAttributes() as $key => $item) {
 			list($object, $property) = $item;
-			$this->_oldAttributes[$key] = isset($object) ? $object->{$property} : null;
+			$this->_oldAttributes[$key] = $this->resolveAttributeValue($object, $property);
 		}
 		return true;
 	}
