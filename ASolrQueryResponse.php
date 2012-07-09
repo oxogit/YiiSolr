@@ -224,14 +224,16 @@ class ASolrQueryResponse extends CComponent {
 		$highlighting = isset($this->_solrObject->highlighting);
 		if ($highlighting)
 			$highlights = array_values((array) $this->_solrObject->highlighting);
-		foreach($rawResults as $n => $row) {
-			$result = $modelClass::model()->populateRecord($row); /* @var ASolrDocument $result */
-			$result->setPosition($n + $this->_criteria->getOffset());
-			$result->setSolrResponse($this);
-			if ($highlighting && isset($highlights[$n]))
-				$result->setHighlights($highlights[$n]);
+		if ($rawResults) {
+			foreach($rawResults as $n => $row) {
+				$result = $modelClass::model()->populateRecord($row); /* @var ASolrDocument $result */
+				$result->setPosition($n + $this->_criteria->getOffset());
+				$result->setSolrResponse($this);
+				if ($highlighting && isset($highlights[$n]))
+					$result->setHighlights($highlights[$n]);
 
-			$list->add($result);
+				$list->add($result);
+			}
 		}
 		return $list;
 	}
